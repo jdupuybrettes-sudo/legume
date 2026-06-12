@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Gestion Fruits" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#1f8a54" />
+  <title>Gestion Fruits & Légumes</title>
+  <style>
+    :root{
+      --bg:#f3f6f4; --card:#ffffff; --line:#d8e0dc; --text:#13231b; --muted:#637168;
+      --green:#1f8a54; --green2:#e8f6ee; --blue:#2266aa; --blue2:#eaf2fb;
+      --orange:#b76416; --orange2:#fff2df; --red:#c63d3d; --red2:#fdecec;
+      --yellow:#fff8d8; --purple:#5c4fa3; --purple2:#f1efff; --gray:#f7f8f7;
+      --shadow:0 10px 25px rgba(30,50,40,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+    header{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);box-shadow:0 2px 10px rgba(0,0,0,.04)}
+    .wrap{max-width:1320px;margin:auto;padding:14px 16px}
+    h1{font-size:22px;margin:0 0 4px 0}.subtitle{font-size:13px;color:var(--muted)}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+    .year-box{display:flex;align-items:end;gap:8px;background:#eef4f0;border:1px solid var(--line);border-radius:14px;padding:8px 10px}
+    .year-box label{margin:0 0 2px 0}.year-box select{min-width:110px;font-size:16px;font-weight:900;background:#fff}
+    .year-box .hint{font-size:12px;color:var(--muted);font-weight:700;max-width:210px;line-height:1.2}
+    .tab-btn.tab-green{border-color:#b9dfc8;background:var(--green2);color:#145b37}.tab-btn.tab-green.active{background:var(--green);border-color:var(--green);color:#fff}
+    .tab-btn.tab-orange{border-color:#f0d1a8;background:var(--orange2);color:#7b3f08}.tab-btn.tab-orange.active{background:var(--orange);border-color:var(--orange);color:#fff}
+    .tab-btn.tab-blue{border-color:#bdd4ec;background:var(--blue2);color:#174a7f}.tab-btn.tab-blue.active{background:var(--blue);border-color:var(--blue);color:#fff}
+    .tab-btn.tab-gray{border-color:#d8e0dc;background:#f7f8f7;color:#314237}.tab-btn.tab-gray.active{background:#25352c;border-color:#25352c;color:#fff}
+    #saisie .card:first-child,#ca .card:first-child,#frais .card:first-child,#bases .card:first-child{border-top:6px solid var(--green)}
+    #stock .card:first-child,#synthese .card:first-child,#controles .card:first-child{border-top:6px solid var(--orange)}
+    #dashboard .card:first-child{border-top:6px solid var(--blue)}
+
+    nav{display:flex;gap:8px;overflow:auto;padding:10px 16px 12px;max-width:1320px;margin:auto}
+    .tab-btn{border:1px solid var(--line);background:#fff;color:#24352c;border-radius:999px;padding:9px 13px;font-weight:700;white-space:nowrap;cursor:pointer}
+    .tab-btn.active{background:var(--green);border-color:var(--green);color:#fff}
+    main{max-width:1320px;margin:auto;padding:18px 16px 48px}
+    .tab{display:none}.tab.active{display:block}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+    .card h2{font-size:18px;margin:0 0 12px}.card h3{font-size:15px;margin:0 0 10px;color:#33453b}
+    .grid{display:grid;gap:12px}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .stat{border:1px solid var(--line);border-radius:16px;padding:13px;background:#fff}.stat .label{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase}.stat .value{font-size:22px;font-weight:900;margin-top:4px}
+    .stat.green{background:var(--green2);border-color:#b9dfc8}.stat.blue{background:var(--blue2);border-color:#bdd4ec}.stat.orange{background:var(--orange2);border-color:#f0d1a8}.stat.red{background:var(--red2);border-color:#efb6b6}.stat.purple{background:var(--purple2);border-color:#d7d0ff}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px}
+    button{border:0;border-radius:12px;background:#25352c;color:#fff;padding:9px 12px;font-weight:800;cursor:pointer}button:hover{opacity:.9}button.secondary{background:#eef2f0;color:#1c2b23;border:1px solid var(--line)}button.green{background:var(--green)}button.blue{background:var(--blue)}button.red{background:var(--red)}button.orange{background:var(--orange)}
+    label{display:block;font-size:12px;font-weight:800;color:#415149;margin-bottom:4px}
+    input,select,textarea{width:100%;border:1px solid #cbd6d1;border-radius:10px;background:#fff;padding:8px 9px;font-size:14px;color:#16261d}.num input{text-align:right}.input-small{max-width:150px}
+    input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}input[type=number]{appearance:textfield;-moz-appearance:textfield}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:#fff}.table-wrap.tall{max-height:70vh}
+    table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}th,td{border-bottom:1px solid #e8eeeb;border-right:1px solid #edf2ef;padding:7px;vertical-align:middle}th{position:sticky;top:0;background:#eef4f0;z-index:2;font-size:12px;text-align:center;white-space:normal}td{background:#fff}tr:hover td{background:#fbfdfc}.num{text-align:right}.center{text-align:center}.muted{color:var(--muted)}
+    .input-cell{background:var(--yellow)}.auto-cell{background:var(--blue2)}.ca-cell{background:var(--green2)}.expense-cell{background:var(--orange2)}.loss-cell{background:#fff0f0}.stock-cell{background:var(--purple2)}.bad{color:#fff;background:var(--red)!important;font-weight:900}.ok{color:var(--green);font-weight:900}.warn{color:var(--orange);font-weight:900}.pos{color:var(--green);font-weight:900}.neg{color:var(--red);font-weight:900}
+    .sticky-left{position:sticky;left:0;z-index:3;background:#fff}.sticky-left-2{position:sticky;left:90px;z-index:3;background:#fff}.sticky-left-3{position:sticky;left:250px;z-index:3;background:#fff}.sticky-head-left{z-index:5;background:#dfeae4!important}.w-date{min-width:120px}.w-product{min-width:160px}.w-supplier{min-width:150px}.w-num{min-width:95px}.w-ca{min-width:105px}
+    .pill{display:inline-block;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:800;background:#eef2f0;color:#314237}.note{font-size:13px;color:var(--muted);line-height:1.45}.danger-note{background:var(--red2);border:1px solid #edb8b8;color:#8a2121;border-radius:12px;padding:10px}.success-note{background:var(--green2);border:1px solid #b5dec7;color:#155c39;border-radius:12px;padding:10px}
+    .section-title{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+    .mini{font-size:12px}.hidden{display:none!important}
+    @media(max-width:850px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.wrap{padding:12px}.card{padding:12px}th,td{padding:6px;font-size:12px}.stat .value{font-size:18px}}
+
+    /* VERSION LISIBLE : cellules plus grandes, couleurs plus marquées, colonnes non compressées */
+    main{max-width:1600px;}
+    .wrap, nav{max-width:1600px;}
+    .table-wrap{max-width:100%;overflow:auto;}
+    .table-wrap table{min-width:1250px;}
+    #saisie .table-wrap table{min-width:1650px;}
+    #ca .ca-table table{min-width:900px;}
+    #frais .table-wrap table{min-width:1050px;}
+    #stock .table-wrap table,#synthese .table-wrap table,#dashboard .table-wrap table{min-width:1150px;}
+    th{font-size:13px;line-height:1.18;padding:11px 9px;border-bottom:2px solid #c4d2cb;background:#e4eee8;}
+    td{font-size:14px;line-height:1.2;padding:8px 8px;height:50px;}
+    input,select,textarea{font-size:15px;min-height:38px;padding:8px 10px;font-weight:700;color:#0f2017;border:1.5px solid #b8c7bf;}
+    .num input{min-width:100px;}
+    .input-cell{background:#fff3ad!important;}
+    .input-cell input,.input-cell select,.input-cell textarea{background:#fff7c9!important;border-color:#d6b735;}
+    .ca-cell{background:#dff5e7!important;}
+    .ca-cell input,.ca-cell select{background:#e8faef!important;border-color:#59ad7a;}
+    .stock-cell{background:#eeeaff!important;}
+    .stock-cell input,.stock-cell select{background:#f4f1ff!important;border-color:#8573d6;}
+    .expense-cell{background:#fff0d7!important;}
+    .expense-cell input,.expense-cell select{background:#fff6e9!important;border-color:#d69747;}
+    .auto-cell{background:#e8f2ff!important;font-weight:900;color:#12365c;}
+    .loss-cell{background:#ffe8e8!important;font-weight:900;color:#842222;}
+    .bad{background:#d83636!important;color:#fff!important;font-weight:900;}
+    .ok{font-weight:900;}
+    .w-date{min-width:150px;}
+    .w-product{min-width:220px;}
+    .w-supplier{min-width:200px;}
+    .w-num{min-width:120px;}
+    .w-ca{min-width:130px;}
+    .sticky-left{left:0;z-index:6;background:#fff3ad!important;box-shadow:2px 0 0 #d8e0dc;}
+    .sticky-left-2{left:150px;z-index:6;background:#fff3ad!important;box-shadow:2px 0 0 #d8e0dc;}
+    .sticky-left-3{left:370px;z-index:6;background:#fff3ad!important;box-shadow:2px 0 0 #d8e0dc;}
+    .sticky-head-left{z-index:9;background:#cfe2d7!important;}
+    #saisie th:nth-child(n+4),#saisie td:nth-child(n+4){min-width:118px;}
+    #saisie th:nth-child(11),#saisie th:nth-child(12),#saisie td:nth-child(11),#saisie td:nth-child(12){min-width:135px;}
+    #saisie th:nth-child(15),#saisie td:nth-child(15){min-width:180px;}
+    button{font-size:14px;}
+    .stat .value{font-size:24px;}
+    @media(max-width:850px){
+      .table-wrap table{min-width:1250px;}
+      #saisie .table-wrap table{min-width:1650px;}
+      #ca .ca-table table{min-width:900px;}
+      th,td{font-size:13px;padding:8px;height:48px;}
+      input,select,textarea{font-size:15px;min-height:40px;}
+    }
+
+    /* PARTAGE FACILE + MODE MOBILE : un seul fichier HTML, interface plus lisible sur téléphone */
+    .mobile-only{display:none!important;}
+    .desktop-only{display:block;}
+    .share-banner{background:#eaf2fb;border:1px solid #bdd4ec;color:#143d66;border-radius:14px;padding:10px 12px;font-weight:800;margin:10px 0;line-height:1.35;}
+    .share-banner small{display:block;font-weight:700;color:#526879;margin-top:4px;}
+    @media(max-width:850px){
+      body{background:#eef4f0;}
+      header{position:sticky;}
+      h1{font-size:18px;}
+      .subtitle{font-size:12px;line-height:1.3;}
+      nav{padding:8px 10px 10px;gap:6px;}
+      .tab-btn{padding:10px 11px;font-size:13px;}
+      main{padding:10px 10px 34px;}
+      .desktop-only{display:none!important;}
+      .mobile-only{display:block!important;}
+      .mobile-card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 16px rgba(30,50,40,.08);padding:12px;margin:10px 0;}
+      .mobile-card-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;font-weight:900;color:#13231b;}
+      .mobile-badge{display:inline-flex;align-items:center;border-radius:999px;background:#eef4f0;color:#314237;padding:4px 8px;font-size:12px;font-weight:900;white-space:nowrap;}
+      .mobile-grid{display:grid;grid-template-columns:1fr;gap:9px;}
+      .mobile-grid.two{grid-template-columns:1fr 1fr;}
+      .mobile-field{background:#fff8d8;border:1px solid #e1c754;border-radius:12px;padding:8px;}
+      .mobile-field.ca{background:#e8f6ee;border-color:#8ac7a2;}
+      .mobile-field.stock{background:#f1efff;border-color:#b4a9ec;}
+      .mobile-field.auto{background:#eaf2fb;border-color:#bdd4ec;}
+      .mobile-field.loss{background:#fdecec;border-color:#efb6b6;}
+      .mobile-field label{font-size:11px;margin-bottom:4px;color:#415149;}
+      .mobile-field input,.mobile-field select{min-height:44px;font-size:16px;border-radius:10px;}
+      .mobile-total{font-size:17px;font-weight:900;text-align:right;}
+      .mobile-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;}
+      .mobile-alert{font-weight:900;border-radius:10px;padding:8px 9px;text-align:center;flex:1;}
+      .mobile-alert.ok{background:#e8f6ee;color:#145b37;}
+      .mobile-alert.bad{background:#c63d3d;color:#fff;}
+      .toolbar{position:sticky;top:104px;z-index:20;background:rgba(255,255,255,.96);padding:8px;border:1px solid var(--line);border-radius:14px;box-shadow:0 5px 14px rgba(0,0,0,.06);}
+      .toolbar button{min-height:42px;}
+      .card{border-radius:16px;margin-bottom:12px;padding:12px;}
+      .section-title{align-items:flex-start;}
+      .share-banner{font-size:13px;}
+
+    .last-focus{outline:3px solid var(--blue)!important;box-shadow:0 0 0 6px rgba(34,102,170,.14)!important;position:relative;}
+    .last-focus::before{content:"Dernière saisie";position:absolute;top:-12px;right:12px;background:var(--blue);color:#fff;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:900;z-index:12;}
+    .jump-note{background:#eef4f0;border:1px dashed #9eb7aa;color:#314237;border-radius:12px;padding:8px 10px;margin:8px 0;font-size:12px;font-weight:800;}
+    }
+
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1>Gestion Fruits & Légumes</h1>
+        <div class="subtitle">Application locale PC et téléphone — calculs automatiques. Année active commune à toutes les pages.</div>
+      </div>
+      <div id="year-control"></div>
+    </div>
+  </div>
+  <nav id="tabs"></nav>
+</header>
+<main>
+  <section id="dashboard" class="tab active"></section>
+  <section id="saisie" class="tab"></section>
+  <section id="ca" class="tab"></section>
+  <section id="frais" class="tab"></section>
+  <section id="stock" class="tab"></section>
+  <section id="synthese" class="tab"></section>
+  <section id="bases" class="tab"></section>
+  <section id="controles" class="tab"></section>
+  <section id="sauvegarde" class="tab"></section>
+</main>
+<script>
+(function(){
+'use strict';
+const STORAGE_KEY='brettes_fruits_legumes_app_pc_v1';
+const UI_KEY=STORAGE_KEY+'_derniere_saisie';
+const YEARS=[2026,2027,2028,2029,2030];
+const UNITS=['kg','unité','caisse','cagette','botte','barquette'];
+const SHOPS=['Magasin 1','Magasin 2','Commun'];
+const MONTHS=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const TABS=[['dashboard','Tableau résultat'],['saisie','Saisie achats'],['frais','Saisie frais'],['ca','Saisie CA'],['stock','Décompte stock'],['synthese','Synthèse'],['bases','Bases'],['controles','Contrôles'],['sauvegarde','Sauvegarde']];
+const DEFAULT_PRODUCTS=['Abricot','Ail','Ananas','Asperge','Aubergine','Avocat','Banane','Betterave','Brocoli','Carotte','Céleri','Cerise','Champignon','Chou','Chou-fleur','Citron','Clémentine / Mandarine','Concombre','Courgette','Échalote','Endive','Épinard','Fenouil','Fraise','Framboise','Haricot vert','Kiwi','Mangue','Melon','Myrtille','Navet','Nectarine','Oignon','Orange','Pamplemousse','Patate douce','Pêche','Petit pois','Poire','Poireau','Poivron','Pomme','Pomme de terre','Radis','Raisin','Salade','Tomate'];
+const DEFAULT_SUPPLIERS=['Fournisseur 1','Fournisseur 2','Marché','Grossiste'];
+const DEFAULT_EXPENSES=[
+  {type:'Loyer',name:'Loyer 1',shop:'Magasin 1'}, {type:'Loyer',name:'Loyer 2',shop:'Magasin 2'}, {type:'Loyer',name:'Loyer 3',shop:'Commun'}, {type:'Loyer',name:'Loyer 4',shop:'Commun'},
+  {type:'Gazoil',name:'Camion 1',shop:'Magasin 1'}, {type:'Gazoil',name:'Camion 2',shop:'Magasin 2'}, {type:'Gazoil',name:'Camion 3',shop:'Commun'}, {type:'Gazoil',name:'Camion 4',shop:'Commun'},
+  {type:'Frais annexe',name:'Batterie',shop:'Commun'}, {type:'Frais annexe',name:'Réparation frigo',shop:'Commun'}
+];
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function toNum(v){ if(v===null||v===undefined||v==='')return 0; let n=Number(String(v).replace(',','.').replace(/\s/g,'')); return Number.isFinite(n)?n:0; }
+function euro(v){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR'}).format(toNum(v));}
+function qty(v){return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:2}).format(toNum(v));}
+function pct(v){return (toNum(v)).toLocaleString('fr-FR',{maximumFractionDigits:2})+' %';}
+function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+function dateISO(d=new Date()){return d.toISOString().slice(0,10)}
+function parseDate(iso){return iso?new Date(iso+'T00:00:00'):null}
+function dateFR(iso){let d=parseDate(iso); return d?d.toLocaleDateString('fr-FR'):''}
+function weekNum(iso){let d=parseDate(iso); if(!d)return ''; d.setHours(0,0,0,0); d.setDate(d.getDate()+3-(d.getDay()+6)%7); let week1=new Date(d.getFullYear(),0,4); return 1+Math.round(((d-week1)/86400000-3+(week1.getDay()+6)%7)/7);}
+function yearOfDate(iso){let d=parseDate(iso); return d?d.getFullYear():''}
+function monthOfDate(iso){let d=parseDate(iso); return d?d.getMonth()+1:''}
+function monthName(n){return MONTHS[n-1]||''}
+function periodEndWeek(year,week){let simple=new Date(year,0,1+(week-1)*7); let dow=simple.getDay(); let monday=new Date(simple); if(dow<=4)monday.setDate(simple.getDate()-simple.getDay()+1); else monday.setDate(simple.getDate()+8-simple.getDay()); let sunday=new Date(monday); sunday.setDate(monday.getDate()+6); return sunday.toISOString().slice(0,10);}
+function periodEndMonth(year,month){return new Date(year,month,0).toISOString().slice(0,10)}
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function defaultData(){return {
+  selectedYear:new Date().getFullYear()<2026?2026:new Date().getFullYear()>2030?2030:new Date().getFullYear(),
+  products:DEFAULT_PRODUCTS.map(name=>({id:uid(),name,unit:name.includes('Radis')?'botte':(['Concombre','Melon','Ananas','Avocat','Chou','Chou-fleur','Céleri','Fenouil','Kiwi','Mangue','Pamplemousse','Salade'].includes(name)?'unité':(name.includes('Framboise')||name.includes('Myrtille')?'barquette':'kg')),lossPct:10})),
+  suppliers:DEFAULT_SUPPLIERS.map(name=>({id:uid(),name})),
+  expensesBase:DEFAULT_EXPENSES.map(e=>({id:uid(),...e})),
+  rows:[], caRows:[], expenses:[]
+}}
+let data=load();
+let uiState=loadUI();
+let currentTab=uiState.currentTab||'dashboard';
+function load(){try{let raw=localStorage.getItem(STORAGE_KEY); if(!raw)return defaultData(); let d=JSON.parse(raw); if(!d.products||!d.rows)return defaultData(); d.selectedYear=d.selectedYear||2026; d.suppliers=d.suppliers||[]; d.expensesBase=d.expensesBase||[]; d.expenses=d.expenses||[]; d.caRows=d.caRows||[]; let migrated=false; d.rows.forEach(r=>{if(toNum(r.caM1)||toNum(r.caM2)){d.caRows.push({id:uid(),date:r.date||dateISO(),caM1:r.caM1||'',caM2:r.caM2||'',note:'Ancien CA'}); r.caM1=''; r.caM2=''; migrated=true;}}); if(migrated)localStorage.setItem(STORAGE_KEY,JSON.stringify(d)); return d;}catch(e){return defaultData();}}
+function loadUI(){try{return JSON.parse(localStorage.getItem(UI_KEY))||{};}catch(e){return {};}}
+function saveUI(){localStorage.setItem(UI_KEY,JSON.stringify(uiState));}
+function setLastInput(path){
+  let parts=String(path||'').split('.');
+  let type=parts[0], index=Number(parts[1]);
+  if(!Number.isFinite(index))return;
+  let tab={rows:'saisie',expenses:'frais',caRows:'ca',products:'bases',suppliers:'bases',expensesBase:'bases'}[type];
+  if(!tab)return;
+  uiState.currentTab=tab;
+  uiState.lastInput={type,index,time:Date.now()};
+  saveUI();
+}
+function lastKey(type,index){return `${type}.${index}`;}
+function lastClass(type,index){return uiState.lastInput&&uiState.lastInput.type===type&&uiState.lastInput.index===index?' last-focus':'';}
+function scrollToLastInput(){
+  let last=uiState.lastInput;
+  if(!last)return;
+  let el=document.querySelector(`[data-last-key="${last.type}.${last.index}"]`);
+  if(!el)return;
+  setTimeout(()=>{try{el.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});}catch(e){el.scrollIntoView();}},80);
+}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}
+function productById(id){return data.products.find(p=>p.id===id)||null}
+function productByName(name){return data.products.find(p=>p.name===name)||null}
+function sortedProducts(){return [...data.products].sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));}
+function suppliersOptions(){return [...data.suppliers].sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));}
+function expenseTypes(){return [...new Set(data.expensesBase.map(e=>e.type).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));}
+function expenseNames(type){return data.expensesBase.filter(e=>!type||e.type===type).map(e=>e.name).filter(Boolean).sort((a,b)=>a.localeCompare(b,'fr'));}
+function hasMovement(r){return !!(r.date||r.productId||r.supplierId||r.unit||toNum(r.purchaseDepot)||toNum(r.purchaseM1)||toNum(r.purchaseM2)||toNum(r.price)||toNum(r.destockM1)||toNum(r.destockM2));}
+function rowPurchaseQty(r){return toNum(r.purchaseDepot)+toNum(r.purchaseM1)+toNum(r.purchaseM2)}
+function rowPurchaseValue(r){return rowPurchaseQty(r)*toNum(r.price)}
+function rowDirectM1Value(r){return toNum(r.purchaseM1)*toNum(r.price)}
+function rowDirectM2Value(r){return toNum(r.purchaseM2)*toNum(r.price)}
+function rowDepotValue(r){return toNum(r.purchaseDepot)*toNum(r.price)}
+function avgDepotPriceUntil(productId,endDate){let q=0,v=0; data.rows.forEach(r=>{if(r.productId===productId && r.date && (!endDate||r.date<=endDate)){q+=toNum(r.purchaseDepot); v+=rowDepotValue(r);}}); return q? v/q : 0;}
+function transferValue(r,field){let price=avgDepotPriceUntil(r.productId,r.date)||toNum(r.price); return toNum(r[field])*price;}
+function productLossPct(productId){let p=productById(productId); return p?toNum(p.lossPct):0}
+function rowLossValue(r){return rowPurchaseValue(r)*productLossPct(r.productId)/100}
+function rowStockImpactDepot(r){return toNum(r.purchaseDepot)-toNum(r.destockM1)-toNum(r.destockM2)}
+function stockByProductUntil(endDate){let map={}; sortedProducts().forEach(p=>map[p.id]={product:p,unit:p.unit,purchaseDepotQty:0,purchaseDepotValue:0,destockM1:0,destockM2:0,stockQty:0,avg:0,stockValue:0}); data.rows.forEach(r=>{if(!r.productId||!r.date)return; if(endDate && r.date>endDate)return; if(!map[r.productId]){let p=productById(r.productId)||{id:r.productId,name:'Produit supprimé',unit:r.unit||''}; map[r.productId]={product:p,unit:p.unit,purchaseDepotQty:0,purchaseDepotValue:0,destockM1:0,destockM2:0,stockQty:0,avg:0,stockValue:0};}
+  let m=map[r.productId]; m.purchaseDepotQty+=toNum(r.purchaseDepot); m.purchaseDepotValue+=rowDepotValue(r); m.destockM1+=toNum(r.destockM1); m.destockM2+=toNum(r.destockM2);
+}); Object.values(map).forEach(m=>{m.avg=m.purchaseDepotQty?m.purchaseDepotValue/m.purchaseDepotQty:0; m.stockQty=m.purchaseDepotQty-m.destockM1-m.destockM2; m.stockValue=m.stockQty*m.avg;}); return Object.values(map).filter(m=>m.purchaseDepotQty||m.destockM1||m.destockM2||m.stockQty);}
+function stockDepotValueUntil(endDate){return stockByProductUntil(endDate).reduce((s,m)=>s+m.stockValue,0)}
+function filterRowsYear(year){return data.rows.filter(r=>yearOfDate(r.date)===year)}
+function filterExpensesYear(year){return data.expenses.filter(r=>yearOfDate(r.date)===year)}
+function filterCARowsYear(year){return (data.caRows||[]).filter(r=>yearOfDate(r.date)===year)}
+function summarizeRows(rows){let s={caM1:0,caM2:0,ca:0,purchases:0,achatM1:0,achatM2:0,loss:0}; rows.forEach(r=>{s.caM1+=toNum(r.caM1); s.caM2+=toNum(r.caM2); s.purchases+=rowPurchaseValue(r); s.achatM1+=rowDirectM1Value(r)+transferValue(r,'destockM1'); s.achatM2+=rowDirectM2Value(r)+transferValue(r,'destockM2'); s.loss+=rowLossValue(r);}); s.ca=s.caM1+s.caM2; return s;}
+function summarizeCA(rows){let s={caM1:0,caM2:0,ca:0}; rows.forEach(r=>{s.caM1+=toNum(r.caM1); s.caM2+=toNum(r.caM2);}); s.ca=s.caM1+s.caM2; return s;}
+function mergeCA(summary,ca){summary.caM1+=ca.caM1; summary.caM2+=ca.caM2; summary.ca+=ca.ca; return summary;}
+function summarizeExpenses(rows){let s={m1:0,m2:0,common:0,total:0,byType:{}}; rows.forEach(r=>{let a=toNum(r.amount); if(r.shop==='Magasin 1')s.m1+=a; else if(r.shop==='Magasin 2')s.m2+=a; else s.common+=a; s.total+=a; s.byType[r.type]=(s.byType[r.type]||0)+a;}); return s;}
+function rowsByWeek(year,w){return data.rows.filter(r=>yearOfDate(r.date)===year && weekNum(r.date)===w)}
+function expensesByWeek(year,w){return data.expenses.filter(r=>yearOfDate(r.date)===year && weekNum(r.date)===w)}
+function caRowsByWeek(year,w){return (data.caRows||[]).filter(r=>yearOfDate(r.date)===year && weekNum(r.date)===w)}
+function rowsByMonth(year,m){return data.rows.filter(r=>yearOfDate(r.date)===year && monthOfDate(r.date)===m)}
+function expensesByMonth(year,m){return data.expenses.filter(r=>yearOfDate(r.date)===year && monthOfDate(r.date)===m)}
+function caRowsByMonth(year,m){return (data.caRows||[]).filter(r=>yearOfDate(r.date)===year && monthOfDate(r.date)===m)}
+function resultObj(rows,exps,caRows=[]){let a=mergeCA(summarizeRows(rows),summarizeCA(caRows)), f=summarizeExpenses(exps); let dep=a.purchases+f.total; return {...a,frais:f,totalExpenses:dep,result:a.ca-dep,resultAfterLoss:a.ca-dep-a.loss,depM1:a.achatM1+f.m1+(f.common/2),depM2:a.achatM2+f.m2+(f.common/2),resM1:a.caM1-(a.achatM1+f.m1+(f.common/2)),resM2:a.caM2-(a.achatM2+f.m2+(f.common/2))};}
+function tabTone(id){if(id==='dashboard')return 'tab-blue'; if(['saisie','ca','frais','bases'].includes(id))return 'tab-green'; if(['stock','synthese','controles'].includes(id))return 'tab-orange'; return 'tab-gray';}
+function initTabs(){document.getElementById('tabs').innerHTML=TABS.map(t=>`<button class="tab-btn ${tabTone(t[0])} ${t[0]===currentTab?'active':''}" data-tab="${t[0]}">${t[1]}</button>`).join(''); document.querySelectorAll('.tab-btn').forEach(b=>b.onclick=()=>{currentTab=b.dataset.tab; uiState.currentTab=currentTab; saveUI(); render();});}
+function renderYearControl(){let el=document.getElementById('year-control'); if(!el)return; el.innerHTML=`<div class="year-box"><div><label>Année active</label><select data-bind="selectedYear">${selectHTML(YEARS.map(String),String(data.selectedYear))}</select></div><div class="hint">Change ici l’année pour toutes les pages.</div></div>`;}
+function setTabActive(){document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('active',s.id===currentTab)); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===currentTab));}
+function render(){save(); initTabs(); renderYearControl(); setTabActive(); renderDashboard(); renderSaisie(); renderCA(); renderFrais(); renderStock(); renderSynthese(); renderBases(); renderControles(); renderSauvegarde(); bindAll(); scrollToLastInput();}
+let autoRenderTimer=null;
+function scheduleRender(){clearTimeout(autoRenderTimer); autoRenderTimer=setTimeout(()=>{autoRenderTimer=null; render();},250);}
+function bindAll(){document.querySelectorAll('[data-action]').forEach(el=>{el.onclick=actions[el.dataset.action]}); document.querySelectorAll('[data-bind]').forEach(el=>{el.onchange=(e)=>updateBind(el.dataset.bind,e.target.value); if(el.tagName==='INPUT'){el.oninput=(e)=>updateBind(el.dataset.bind,e.target.value,false); el.onkeydown=(e)=>{if(e.key==='Enter'){e.preventDefault(); e.target.blur();}};}});}
+function updateBind(path,value,rer=true){setLastInput(path); let parts=path.split('.'); let obj=data; for(let i=0;i<parts.length-1;i++){let key=parts[i]; if(Array.isArray(obj)){obj=obj[Number(key)]}else obj=obj[key];} obj[parts[parts.length-1]]=value; if(path.includes('productId')){let idx=Number(parts[1]); let p=productById(value); if(p&&data.rows[idx])data.rows[idx].unit=p.unit;} save(); if(rer!==false)render();}
+function selectHTML(opts,value,empty=''){let html=empty?`<option value="">${esc(empty)}</option>`:''; return html+opts.map(o=>typeof o==='string'?`<option ${o===value?'selected':''} value="${esc(o)}">${esc(o)}</option>`:`<option ${o.id===value?'selected':''} value="${esc(o.id)}">${esc(o.name)}</option>`).join('');}
+function renderDashboard(){let y=toNum(data.selectedYear); let yearRows=filterRowsYear(y), yearExpenses=filterExpensesYear(y); let resYear=resultObj(yearRows,yearExpenses,filterCARowsYear(y)); let stockYear=stockDepotValueUntil(`${y}-12-31`); let weeks=Array.from({length:53},(_,i)=>i+1); let rowsWeek=weeks.map(w=>{let r=resultObj(rowsByWeek(y,w),expensesByWeek(y,w),caRowsByWeek(y,w)); let stock=stockDepotValueUntil(periodEndWeek(y,w)); return {w,...r,stock};}).filter(r=>r.ca||r.purchases||r.frais.total||r.loss||r.stock);
+let rowsMonth=Array.from({length:12},(_,i)=>{let m=i+1; let r=resultObj(rowsByMonth(y,m),expensesByMonth(y,m),caRowsByMonth(y,m)); let stock=stockDepotValueUntil(periodEndMonth(y,m)); return {m,...r,stock};});
+let html=`<div class="card"><div class="section-title"><div><h2>Tableau résultat</h2><div class="note">Les pertes sont affichées en indicateur. Le résultat simple = CA - achats - frais. Le résultat après pertes est affiché à côté pour analyse.</div></div><div><label>Année à analyser</label><select class="input-small" data-bind="selectedYear">${selectHTML(YEARS.map(String),String(data.selectedYear))}</select></div></div>
+<div class="grid grid-4"><div class="stat green"><div class="label">CA année</div><div class="value">${euro(resYear.ca)}</div></div><div class="stat orange"><div class="label">Dépenses année</div><div class="value">${euro(resYear.totalExpenses)}</div></div><div class="stat blue"><div class="label">Résultat simple</div><div class="value ${resYear.result<0?'neg':'pos'}">${euro(resYear.result)}</div></div><div class="stat purple"><div class="label">Stock dépôt valorisé</div><div class="value">${euro(stockYear)}</div></div></div>
+<div class="grid grid-2" style="margin-top:12px"><div class="stat red"><div class="label">Pertes info année</div><div class="value">${euro(resYear.loss)}</div></div><div class="stat blue"><div class="label">Résultat après pertes</div><div class="value ${resYear.resultAfterLoss<0?'neg':'pos'}">${euro(resYear.resultAfterLoss)}</div></div></div></div>`;
+html+=`<div class="card"><h2>Résultat par semaine</h2><div class="table-wrap"><table><thead><tr><th>Semaine</th><th>CA total</th><th>Achats</th><th>Frais</th><th>Dépenses<br>globales</th><th>Pertes<br>info</th><th>Stock dépôt<br>fin période</th><th>Résultat<br>simple</th><th>Résultat<br>après pertes</th><th>Dép. Mag.1</th><th>Rés. Mag.1</th><th>Dép. Mag.2</th><th>Rés. Mag.2</th></tr></thead><tbody>`;
+html+=rowsWeek.map(r=>`<tr><td class="center">${r.w}</td><td class="num ca-cell">${euro(r.ca)}</td><td class="num">${euro(r.purchases)}</td><td class="num expense-cell">${euro(r.frais.total)}</td><td class="num expense-cell">${euro(r.totalExpenses)}</td><td class="num loss-cell">${euro(r.loss)}</td><td class="num stock-cell">${euro(r.stock)}</td><td class="num ${r.result<0?'neg':'pos'}">${euro(r.result)}</td><td class="num ${r.resultAfterLoss<0?'neg':'pos'}">${euro(r.resultAfterLoss)}</td><td class="num">${euro(r.depM1)}</td><td class="num ${r.resM1<0?'neg':'pos'}">${euro(r.resM1)}</td><td class="num">${euro(r.depM2)}</td><td class="num ${r.resM2<0?'neg':'pos'}">${euro(r.resM2)}</td></tr>`).join('')||`<tr><td colspan="13" class="center muted">Aucune donnée pour ${y}</td></tr>`;
+html+=`</tbody></table></div></div>`;
+html+=`<div class="card"><h2>Résultat par mois</h2><div class="table-wrap"><table><thead><tr><th>Mois</th><th>CA total</th><th>Achats</th><th>Frais</th><th>Dépenses<br>globales</th><th>Pertes<br>info</th><th>Stock dépôt<br>fin mois</th><th>Résultat<br>simple</th><th>Résultat<br>après pertes</th></tr></thead><tbody>`;
+let tot={ca:0,purchases:0,frais:0,expenses:0,loss:0,result:0,after:0};
+html+=rowsMonth.map(r=>{tot.ca+=r.ca;tot.purchases+=r.purchases;tot.frais+=r.frais.total;tot.expenses+=r.totalExpenses;tot.loss+=r.loss;tot.result+=r.result;tot.after+=r.resultAfterLoss;return `<tr><td>${monthName(r.m)}</td><td class="num ca-cell">${euro(r.ca)}</td><td class="num">${euro(r.purchases)}</td><td class="num expense-cell">${euro(r.frais.total)}</td><td class="num expense-cell">${euro(r.totalExpenses)}</td><td class="num loss-cell">${euro(r.loss)}</td><td class="num stock-cell">${euro(r.stock)}</td><td class="num ${r.result<0?'neg':'pos'}">${euro(r.result)}</td><td class="num ${r.resultAfterLoss<0?'neg':'pos'}">${euro(r.resultAfterLoss)}</td></tr>`}).join('');
+html+=`<tr><th>TOTAL ANNÉE</th><th class="num">${euro(tot.ca)}</th><th class="num">${euro(tot.purchases)}</th><th class="num">${euro(tot.frais)}</th><th class="num">${euro(tot.expenses)}</th><th class="num">${euro(tot.loss)}</th><th class="num">${euro(stockYear)}</th><th class="num ${tot.result<0?'neg':'pos'}">${euro(tot.result)}</th><th class="num ${tot.after<0?'neg':'pos'}">${euro(tot.after)}</th></tr>`;
+html+=`</tbody></table></div></div>`;
+document.getElementById('dashboard').innerHTML=html;}
+function renderSaisie(){let products=sortedProducts(), suppliers=suppliersOptions(); let rows=data.rows; let html=`<div class="card"><div class="section-title"><div><h2>Saisie achats</h2><div class="note">Tableau dédié aux achats, au stock dépôt et aux déstockages. Sur téléphone, les lignes sont affichées en cartes pour éviter le grand tableau horizontal.</div></div><div class="toolbar"><button class="green" data-action="addRow">+ Ligne marchandise</button><button class="secondary" data-action="add10Rows">+ 10 lignes</button></div></div><div class="share-banner mobile-only">Mode téléphone actif<small>Chaque ligne d’achat est affichée en carte. L’application revient automatiquement sur la dernière ligne modifiée. Les calculs se mettent à jour quand tu quittes la case.</small></div><div class="jump-note">Repère bleu = dernière saisie enregistrée.</div><div class="table-wrap tall desktop-only"><table><thead><tr><th class="sticky-left sticky-head-left w-date">Date</th><th class="sticky-left-2 sticky-head-left w-product">Produit</th><th class="sticky-left-3 sticky-head-left w-supplier">Fournisseur</th><th>Unité</th><th>Achat<br>Dépôt</th><th>Achat<br>Mag.1</th><th>Achat<br>Mag.2</th><th>Prix achat<br>unitaire €</th><th>Déstock<br>Dépôt→M1</th><th>Déstock<br>Dépôt→M2</th><th>Total<br>achat €</th><th>Pertes<br>info €</th><th>Alerte</th><th></th></tr></thead><tbody>`;
+if(rows.length===0) html+=`<tr><td colspan="14" class="center muted">Aucune ligne marchandise. Clique sur “+ Ligne marchandise”.</td></tr>`;
+rows.forEach((r,i)=>{let alert=rowAlert(r,i); html+=`<tr data-last-key="${lastKey('rows',i)}" class="${lastClass('rows',i)}"><td class="sticky-left input-cell"><input type="date" value="${esc(r.date||'')}" data-bind="rows.${i}.date"></td><td class="sticky-left-2 input-cell"><select data-bind="rows.${i}.productId">${selectHTML(products,r.productId,'Produit')}</select></td><td class="sticky-left-3 input-cell"><select data-bind="rows.${i}.supplierId">${selectHTML(suppliers,r.supplierId,'Fournisseur')}</select></td><td class="input-cell"><select data-bind="rows.${i}.unit">${selectHTML(UNITS,r.unit,'Unité')}</select></td><td class="num input-cell"><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.purchaseDepot||'')}" data-bind="rows.${i}.purchaseDepot"></td><td class="num input-cell"><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.purchaseM1||'')}" data-bind="rows.${i}.purchaseM1"></td><td class="num input-cell"><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.purchaseM2||'')}" data-bind="rows.${i}.purchaseM2"></td><td class="num input-cell"><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.price||'')}" data-bind="rows.${i}.price"></td><td class="num stock-cell"><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.destockM1||'')}" data-bind="rows.${i}.destockM1"></td><td class="num stock-cell"><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.destockM2||'')}" data-bind="rows.${i}.destockM2"></td><td class="num auto-cell">${euro(rowPurchaseValue(r))}</td><td class="num loss-cell">${euro(rowLossValue(r))}</td><td class="center ${alert?'bad':'ok'}">${alert?esc(alert):'OK'}</td><td><button class="red mini" onclick="window.appDelRow(${i})">X</button></td></tr>`;});
+html+=`</tbody></table></div><div class="mobile-only">`;
+if(rows.length===0) html+=`<div class="mobile-card"><div class="muted center">Aucune ligne marchandise. Clique sur “+ Ligne marchandise”.</div></div>`;
+rows.forEach((r,i)=>{let alert=rowAlert(r,i); let p=productById(r.productId); html+=`<div class="mobile-card${lastClass('rows',i)}" data-last-key="${lastKey('rows',i)}"><div class="mobile-card-title"><span>Achat n°${i+1}</span><span class="mobile-badge">${p?esc(p.name):'Produit'}</span></div><div class="mobile-grid"><div class="mobile-field"><label>Date</label><input type="date" value="${esc(r.date||'')}" data-bind="rows.${i}.date"></div><div class="mobile-field"><label>Produit</label><select data-bind="rows.${i}.productId">${selectHTML(products,r.productId,'Produit')}</select></div><div class="mobile-field"><label>Fournisseur</label><select data-bind="rows.${i}.supplierId">${selectHTML(suppliers,r.supplierId,'Fournisseur')}</select></div><div class="mobile-grid two"><div class="mobile-field"><label>Unité</label><select data-bind="rows.${i}.unit">${selectHTML(UNITS,r.unit,'Unité')}</select></div><div class="mobile-field"><label>Prix unitaire €</label><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.price||'')}" data-bind="rows.${i}.price"></div></div><div class="mobile-grid two"><div class="mobile-field"><label>Achat dépôt</label><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.purchaseDepot||'')}" data-bind="rows.${i}.purchaseDepot"></div><div class="mobile-field"><label>Achat Mag.1</label><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.purchaseM1||'')}" data-bind="rows.${i}.purchaseM1"></div></div><div class="mobile-grid two"><div class="mobile-field"><label>Achat Mag.2</label><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.purchaseM2||'')}" data-bind="rows.${i}.purchaseM2"></div><div class="mobile-field stock"><label>Déstock → M1</label><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.destockM1||'')}" data-bind="rows.${i}.destockM1"></div></div><div class="mobile-grid two"><div class="mobile-field stock"><label>Déstock → M2</label><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.destockM2||'')}" data-bind="rows.${i}.destockM2"></div><div class="mobile-field auto"><label>Total achat</label><div class="mobile-total">${euro(rowPurchaseValue(r))}</div></div></div><div class="mobile-field loss"><label>Pertes info</label><div class="mobile-total">${euro(rowLossValue(r))}</div></div></div><div class="mobile-actions"><div class="mobile-alert ${alert?'bad':'ok'}">${alert?esc(alert):'OK'}</div><button class="red" onclick="window.appDelRow(${i})">Supprimer</button></div></div>`;});
+html+=`</div></div>`;
+document.getElementById('saisie').innerHTML=html;}
+
+function renderCA(){let caRows=data.caRows||[]; let html=`<div class="card"><div class="section-title"><div><h2>Saisie chiffre d’affaires</h2><div class="note">Une ligne complète dédiée au CA. Sur téléphone, la saisie est affichée en cartes avec grands champs.</div></div><div class="toolbar"><button class="green" data-action="addCA">+ Ligne CA</button><button class="secondary" data-action="add5CA">+ 5 lignes CA</button></div></div><div class="share-banner mobile-only">Mode téléphone actif<small>Saisis le CA Mag.1 et Mag.2 sans tableau horizontal. L’application revient automatiquement sur la dernière ligne modifiée. Les calculs se mettent à jour quand tu quittes la case.</small></div><div class="jump-note">Repère bleu = dernière saisie enregistrée.</div><div class="table-wrap ca-table desktop-only"><table><thead><tr><th class="w-date">Date</th><th>CA<br>Mag.1 €</th><th>CA<br>Mag.2 €</th><th>Total<br>CA €</th><th>Note</th><th>Alerte</th><th></th></tr></thead><tbody>`;
+if(caRows.length===0) html+=`<tr><td colspan="7" class="center muted">Aucun chiffre d’affaires saisi. Clique sur “+ Ligne CA”.</td></tr>`;
+caRows.forEach((r,i)=>{let alert=caAlert(r); html+=`<tr data-last-key="${lastKey('caRows',i)}" class="${lastClass('caRows',i)}"><td class="input-cell"><input type="date" value="${esc(r.date||'')}" data-bind="caRows.${i}.date"></td><td class="num ca-cell"><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.caM1||'')}" data-bind="caRows.${i}.caM1"></td><td class="num ca-cell"><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.caM2||'')}" data-bind="caRows.${i}.caM2"></td><td class="num auto-cell">${euro(toNum(r.caM1)+toNum(r.caM2))}</td><td class="input-cell"><input value="${esc(r.note||'')}" data-bind="caRows.${i}.note"></td><td class="center ${alert?'bad':'ok'}">${alert?esc(alert):'OK'}</td><td><button class="red mini" onclick="window.appDelCA(${i})">X</button></td></tr>`;});
+html+=`</tbody></table></div><div class="mobile-only">`;
+if(caRows.length===0) html+=`<div class="mobile-card"><div class="muted center">Aucun chiffre d’affaires saisi. Clique sur “+ Ligne CA”.</div></div>`;
+caRows.forEach((r,i)=>{let alert=caAlert(r); html+=`<div class="mobile-card${lastClass('caRows',i)}" data-last-key="${lastKey('caRows',i)}"><div class="mobile-card-title"><span>CA n°${i+1}</span><span class="mobile-badge">${dateFR(r.date)||'Date'}</span></div><div class="mobile-grid"><div class="mobile-field ca"><label>Date</label><input type="date" value="${esc(r.date||'')}" data-bind="caRows.${i}.date"></div><div class="mobile-grid two"><div class="mobile-field ca"><label>CA Mag.1 €</label><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.caM1||'')}" data-bind="caRows.${i}.caM1"></div><div class="mobile-field ca"><label>CA Mag.2 €</label><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.caM2||'')}" data-bind="caRows.${i}.caM2"></div></div><div class="mobile-field auto"><label>Total CA</label><div class="mobile-total">${euro(toNum(r.caM1)+toNum(r.caM2))}</div></div><div class="mobile-field"><label>Note</label><input value="${esc(r.note||'')}" data-bind="caRows.${i}.note"></div></div><div class="mobile-actions"><div class="mobile-alert ${alert?'bad':'ok'}">${alert?esc(alert):'OK'}</div><button class="red" onclick="window.appDelCA(${i})">Supprimer</button></div></div>`;});
+html+=`</div></div>`;
+document.getElementById('ca').innerHTML=html;}
+function renderFrais(){let types=expenseTypes(); let html=`<div class="card"><div class="section-title"><div><h2>Saisie frais</h2><div class="note">Saisie séparée des frais : loyer, gazoil, frais annexes. Les frais communs sont répartis à 50/50 dans le résultat Mag.1 / Mag.2.</div></div><div class="toolbar"><button class="green" data-action="addExpense">+ Frais</button><button class="secondary" data-action="add5Expenses">+ 5 lignes</button></div></div><div class="share-banner mobile-only">Mode téléphone actif<small>Chaque frais est affiché en carte avec champs agrandis. L’application revient automatiquement sur la dernière ligne modifiée. Les calculs se mettent à jour quand tu quittes la case.</small></div><div class="jump-note">Repère bleu = dernière saisie enregistrée.</div><div class="table-wrap tall desktop-only"><table><thead><tr><th>Date</th><th>Type frais</th><th>Dénomination</th><th>Magasin</th><th>Montant €</th><th>Alerte</th><th></th></tr></thead><tbody>`;
+if(data.expenses.length===0)html+=`<tr><td colspan="7" class="center muted">Aucun frais saisi.</td></tr>`;
+data.expenses.forEach((r,i)=>{let alert=expenseAlert(r); html+=`<tr data-last-key="${lastKey('expenses',i)}" class="${lastClass('expenses',i)}"><td class="input-cell"><input type="date" value="${esc(r.date||'')}" data-bind="expenses.${i}.date"></td><td class="input-cell"><select data-bind="expenses.${i}.type">${selectHTML(types,r.type,'Type')}</select></td><td class="input-cell"><select data-bind="expenses.${i}.name">${selectHTML(expenseNames(r.type),r.name,'Dénomination')}</select></td><td class="input-cell"><select data-bind="expenses.${i}.shop">${selectHTML(SHOPS,r.shop,'Magasin')}</select></td><td class="num input-cell"><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.amount||'')}" data-bind="expenses.${i}.amount"></td><td class="center ${alert?'bad':'ok'}">${alert?esc(alert):'OK'}</td><td><button class="red mini" onclick="window.appDelExpense(${i})">X</button></td></tr>`});
+html+=`</tbody></table></div><div class="mobile-only">`;
+if(data.expenses.length===0) html+=`<div class="mobile-card"><div class="muted center">Aucun frais saisi. Clique sur “+ Frais”.</div></div>`;
+data.expenses.forEach((r,i)=>{let alert=expenseAlert(r); html+=`<div class="mobile-card${lastClass('expenses',i)}" data-last-key="${lastKey('expenses',i)}"><div class="mobile-card-title"><span>Frais n°${i+1}</span><span class="mobile-badge">${r.type?esc(r.type):'Type'}</span></div><div class="mobile-grid"><div class="mobile-field"><label>Date</label><input type="date" value="${esc(r.date||'')}" data-bind="expenses.${i}.date"></div><div class="mobile-field"><label>Type frais</label><select data-bind="expenses.${i}.type">${selectHTML(types,r.type,'Type')}</select></div><div class="mobile-field"><label>Dénomination</label><select data-bind="expenses.${i}.name">${selectHTML(expenseNames(r.type),r.name,'Dénomination')}</select></div><div class="mobile-grid two"><div class="mobile-field"><label>Magasin</label><select data-bind="expenses.${i}.shop">${selectHTML(SHOPS,r.shop,'Magasin')}</select></div><div class="mobile-field"><label>Montant €</label><input type="text" inputmode="decimal" autocomplete="off" value="${esc(r.amount||'')}" data-bind="expenses.${i}.amount"></div></div><div class="mobile-field auto"><label>Total frais ligne</label><div class="mobile-total">${euro(toNum(r.amount))}</div></div></div><div class="mobile-actions"><div class="mobile-alert ${alert?'bad':'ok'}">${alert?esc(alert):'OK'}</div><button class="red" onclick="window.appDelExpense(${i})">Supprimer</button></div></div>`;});
+html+=`</div></div>`;
+document.getElementById('frais').innerHTML=html;}
+function renderStock(){let y=toNum(data.selectedYear); let stock=stockByProductUntil(`${y}-12-31`); let html=`<div class="card"><div class="section-title"><div><h2>Décompte stock dépôt</h2><div class="note">Valorisation du stock dépôt au prix moyen pondéré des achats dépôt. Les pertes restent un indicateur séparé.</div></div><div><span class="pill">Année ${y}</span></div></div><div class="table-wrap"><table><thead><tr><th>Produit</th><th>Unité</th><th>Achat dépôt</th><th>Valeur achat dépôt</th><th>Prix moyen</th><th>Déstock M1</th><th>Déstock M2</th><th>Stock dépôt restant</th><th>Valeur stock dépôt</th><th>% perte</th><th>Statut</th></tr></thead><tbody>`;
+if(stock.length===0)html+=`<tr><td colspan="11" class="center muted">Aucun stock dépôt.</td></tr>`;
+stock.forEach(s=>{let p=s.product; html+=`<tr><td>${esc(p.name)}</td><td class="center">${esc(p.unit||s.unit||'')}</td><td class="num">${qty(s.purchaseDepotQty)}</td><td class="num">${euro(s.purchaseDepotValue)}</td><td class="num">${euro(s.avg)}</td><td class="num">${qty(s.destockM1)}</td><td class="num">${qty(s.destockM2)}</td><td class="num ${s.stockQty<0?'neg':'pos'}">${qty(s.stockQty)}</td><td class="num stock-cell">${euro(s.stockValue)}</td><td class="num loss-cell">${pct(p.lossPct)}</td><td class="center ${s.stockQty<0?'bad':'ok'}">${s.stockQty<0?'STOCK -':'OK'}</td></tr>`});
+html+=`</tbody></table></div></div>`; document.getElementById('stock').innerHTML=html;}
+function renderSynthese(){let y=toNum(data.selectedYear); let weeks=Array.from({length:53},(_,i)=>i+1); let html=`<div class="card"><div class="section-title"><div><h2>Synthèse</h2><div class="note">Les pertes sont en information. Résultat simple = CA - achats - frais.</div></div><div><label>Année à analyser</label><select class="input-small" data-bind="selectedYear">${selectHTML(YEARS.map(String),String(data.selectedYear))}</select></div></div></div>`;
+html+=`<div class="grid grid-2"><div class="card"><h2>Par semaine</h2><div class="table-wrap"><table><thead><tr><th>Semaine</th><th>Achats total</th><th>Achats Mag.1</th><th>Achats Mag.2</th><th>CA total</th><th>Pertes info</th><th>Écart CA - achats</th></tr></thead><tbody>`;
+weeks.forEach(w=>{let s=mergeCA(summarizeRows(rowsByWeek(y,w)),summarizeCA(caRowsByWeek(y,w))); if(!(s.purchases||s.ca||s.loss))return; html+=`<tr><td class="center">${w}</td><td class="num">${euro(s.purchases)}</td><td class="num">${euro(s.achatM1)}</td><td class="num">${euro(s.achatM2)}</td><td class="num ca-cell">${euro(s.ca)}</td><td class="num loss-cell">${euro(s.loss)}</td><td class="num ${(s.ca-s.purchases)<0?'neg':'pos'}">${euro(s.ca-s.purchases)}</td></tr>`});
+html+=`</tbody></table></div></div><div class="card"><h2>Par mois</h2><div class="table-wrap"><table><thead><tr><th>Mois</th><th>Achats total</th><th>Achats Mag.1</th><th>Achats Mag.2</th><th>CA total</th><th>Pertes info</th><th>Écart CA - achats</th></tr></thead><tbody>`;
+let tot={p:0,m1:0,m2:0,ca:0,loss:0}; for(let m=1;m<=12;m++){let s=mergeCA(summarizeRows(rowsByMonth(y,m)),summarizeCA(caRowsByMonth(y,m))); tot.p+=s.purchases; tot.m1+=s.achatM1; tot.m2+=s.achatM2; tot.ca+=s.ca; tot.loss+=s.loss; html+=`<tr><td>${monthName(m)}</td><td class="num">${euro(s.purchases)}</td><td class="num">${euro(s.achatM1)}</td><td class="num">${euro(s.achatM2)}</td><td class="num ca-cell">${euro(s.ca)}</td><td class="num loss-cell">${euro(s.loss)}</td><td class="num ${(s.ca-s.purchases)<0?'neg':'pos'}">${euro(s.ca-s.purchases)}</td></tr>`}
+html+=`<tr><th>TOTAL ANNÉE</th><th class="num">${euro(tot.p)}</th><th class="num">${euro(tot.m1)}</th><th class="num">${euro(tot.m2)}</th><th class="num">${euro(tot.ca)}</th><th class="num">${euro(tot.loss)}</th><th class="num ${(tot.ca-tot.p)<0?'neg':'pos'}">${euro(tot.ca-tot.p)}</th></tr>`;
+html+=`</tbody></table></div></div></div>`; document.getElementById('synthese').innerHTML=html;}
+function renderBases(){let html=`<div class="grid grid-3"><div class="card"><div class="section-title"><h2>Base produits</h2><button class="green" data-action="addProduct">+ Produit</button></div><div class="table-wrap tall"><table><thead><tr><th>Produit</th><th>Unité</th><th>% perte</th><th></th></tr></thead><tbody>`;
+sortedProducts().forEach(p=>{let i=data.products.findIndex(x=>x.id===p.id); html+=`<tr><td class="input-cell"><input value="${esc(p.name)}" data-bind="products.${i}.name"></td><td class="input-cell"><select data-bind="products.${i}.unit">${selectHTML(UNITS,p.unit,'Unité')}</select></td><td class="input-cell"><input type="text" inputmode="decimal" autocomplete="off" value="${esc(p.lossPct)}" data-bind="products.${i}.lossPct"></td><td><button class="red mini" onclick="window.appDelProduct(${i})">X</button></td></tr>`});
+html+=`</tbody></table></div></div><div class="card"><div class="section-title"><h2>Base fournisseurs</h2><button class="green" data-action="addSupplier">+ Fournisseur</button></div><div class="table-wrap tall"><table><thead><tr><th>Fournisseur</th><th></th></tr></thead><tbody>`;
+suppliersOptions().forEach(s=>{let i=data.suppliers.findIndex(x=>x.id===s.id); html+=`<tr><td class="input-cell"><input value="${esc(s.name)}" data-bind="suppliers.${i}.name"></td><td><button class="red mini" onclick="window.appDelSupplier(${i})">X</button></td></tr>`});
+html+=`</tbody></table></div></div><div class="card"><div class="section-title"><h2>Base frais</h2><button class="green" data-action="addExpenseBase">+ Frais</button></div><div class="table-wrap tall"><table><thead><tr><th>Type</th><th>Dénomination</th><th>Magasin défaut</th><th></th></tr></thead><tbody>`;
+data.expensesBase.forEach((e,i)=>{html+=`<tr><td class="input-cell"><input value="${esc(e.type)}" data-bind="expensesBase.${i}.type"></td><td class="input-cell"><input value="${esc(e.name)}" data-bind="expensesBase.${i}.name"></td><td class="input-cell"><select data-bind="expensesBase.${i}.shop">${selectHTML(SHOPS,e.shop,'Magasin')}</select></td><td><button class="red mini" onclick="window.appDelExpenseBase(${i})">X</button></td></tr>`});
+html+=`</tbody></table></div></div></div>`; document.getElementById('bases').innerHTML=html;}
+function renderControles(){let alerts=[]; data.rows.forEach((r,i)=>{let a=rowAlert(r,i); if(a)alerts.push({page:'Saisie achats',line:i+1,msg:a});}); (data.caRows||[]).forEach((r,i)=>{let a=caAlert(r); if(a)alerts.push({page:'Saisie CA',line:i+1,msg:a});}); data.expenses.forEach((r,i)=>{let a=expenseAlert(r); if(a)alerts.push({page:'Saisie frais',line:i+1,msg:a});}); let stock=stockByProductUntil(`${data.selectedYear}-12-31`).filter(s=>s.stockQty<0); stock.forEach(s=>alerts.push({page:'Décompte stock',line:'-',msg:`Stock dépôt négatif : ${s.product.name}`}));
+let html=`<div class="card"><h2>Contrôles</h2>${alerts.length?`<div class="danger-note">${alerts.length} alerte(s) à vérifier.</div>`:`<div class="success-note">Aucune alerte détectée.</div>`}<div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>Page</th><th>Ligne</th><th>Problème</th></tr></thead><tbody>`;
+html+=alerts.map(a=>`<tr><td>${esc(a.page)}</td><td class="center">${esc(a.line)}</td><td class="bad">${esc(a.msg)}</td></tr>`).join('')||`<tr><td colspan="3" class="center muted">Tout est OK.</td></tr>`;
+html+=`</tbody></table></div></div>`; document.getElementById('controles').innerHTML=html;}
+function renderSauvegarde(){let html=`<div class="card"><h2>Sauvegarde / export</h2><p class="note">Les données sont sauvegardées automatiquement sur ce PC dans le navigateur. Pour sécuriser le travail, exporte régulièrement une sauvegarde JSON.</p><div class="toolbar"><button class="blue" data-action="exportJSON">Exporter sauvegarde JSON</button><button class="green" data-action="exportExcel">Exporter Excel (.xls)</button><button class="secondary" data-action="importJSON">Importer JSON</button><button class="red" data-action="resetAll">Réinitialiser</button></div><input id="importFile" class="hidden" type="file" accept="application/json,.json"></div><div class="card"><h2>Mode emploi rapide</h2><ol class="note"><li>Saisie achats : remplir achats et déstock.</li><li>Saisie frais : remplir loyer, gazoil, frais annexes.</li><li>Saisie CA : remplir CA Mag.1 et CA Mag.2 dans l’onglet dédié.</li><li>Bases : ajouter produits, fournisseurs et frais.</li><li>Décompte stock : contrôler le stock dépôt.</li><li>Tableau résultat : consulter CA, achats, frais, pertes info, stock dépôt et résultat.</li><li>L’année active se change en haut de l’application et s’applique à toutes les pages.</li><li>Les couleurs du menu indiquent le type de page : vert = saisie/base, orange = information/contrôle, bleu = résultat.</li><li>Les calculs se recalculent automatiquement après la saisie. La dernière ligne modifiée reste mémorisée et encadrée en bleu pour la retrouver facilement.</li></ol></div>`; document.getElementById('sauvegarde').innerHTML=html;}
+function rowAlert(r,i){if(!hasMovement(r))return ''; let hasQty=rowPurchaseQty(r)||toNum(r.destockM1)||toNum(r.destockM2); if(!r.date)return 'Date manquante'; if(hasQty&&!r.productId)return 'Produit manquant'; if(hasQty&&!r.unit)return 'Unité manquante'; if(rowPurchaseQty(r)&&!r.supplierId)return 'Fournisseur manquant'; if(rowPurchaseQty(r)&&!toNum(r.price))return 'Prix achat manquant'; if((toNum(r.destockM1)||toNum(r.destockM2))&&!r.productId)return 'Produit déstock manquant'; return '';}
+function caAlert(r){let used=!!(r.date||toNum(r.caM1)||toNum(r.caM2)||r.note); if(!used)return ''; if(!r.date)return 'Date CA manquante'; if(!toNum(r.caM1)&&!toNum(r.caM2))return 'Montant CA manquant'; return '';}
+function expenseAlert(r){let used=!!(r.date||r.type||r.name||r.shop||toNum(r.amount)); if(!used)return ''; if(!r.date)return 'Date manquante'; if(!r.type)return 'Type frais manquant'; if(!r.name)return 'Dénomination manquante'; if(!r.shop)return 'Magasin manquant'; if(!toNum(r.amount))return 'Montant manquant'; return '';}
+const actions={
+  addRow(){data.rows.push({id:uid(),date:dateISO(),productId:'',supplierId:'',unit:'',purchaseDepot:'',purchaseM1:'',purchaseM2:'',price:'',destockM1:'',destockM2:''}); setLastInput('rows.'+(data.rows.length-1)+'.date'); currentTab='saisie'; render()},
+  add10Rows(){let start=data.rows.length; for(let i=0;i<10;i++)data.rows.push({id:uid(),date:dateISO(),productId:'',supplierId:'',unit:'',purchaseDepot:'',purchaseM1:'',purchaseM2:'',price:'',destockM1:'',destockM2:''}); setLastInput('rows.'+start+'.date'); currentTab='saisie'; render()},
+  addCA(){data.caRows=data.caRows||[]; data.caRows.push({id:uid(),date:dateISO(),caM1:'',caM2:'',note:''}); setLastInput('caRows.'+(data.caRows.length-1)+'.date'); currentTab='ca'; render()},
+  add5CA(){data.caRows=data.caRows||[]; let start=data.caRows.length; for(let i=0;i<5;i++)data.caRows.push({id:uid(),date:dateISO(),caM1:'',caM2:'',note:''}); setLastInput('caRows.'+start+'.date'); currentTab='ca'; render()},
+  addExpense(){data.expenses.push({id:uid(),date:dateISO(),type:'',name:'',shop:'',amount:''}); setLastInput('expenses.'+(data.expenses.length-1)+'.date'); currentTab='frais'; render()},
+  add5Expenses(){let start=data.expenses.length; for(let i=0;i<5;i++)data.expenses.push({id:uid(),date:dateISO(),type:'',name:'',shop:'',amount:''}); setLastInput('expenses.'+start+'.date'); currentTab='frais'; render()},
+  addProduct(){data.products.push({id:uid(),name:'Nouveau produit',unit:'kg',lossPct:10});render()},
+  addSupplier(){data.suppliers.push({id:uid(),name:'Nouveau fournisseur'});render()},
+  addExpenseBase(){data.expensesBase.push({id:uid(),type:'Frais annexe',name:'Nouveau frais',shop:'Commun'});render()},
+  exportJSON(){download('sauvegarde_gestion_fruits_legumes.json',JSON.stringify(data,null,2),'application/json')},
+  importJSON(){let input=document.getElementById('importFile'); input.onchange=e=>{let f=e.target.files[0]; if(!f)return; let rd=new FileReader(); rd.onload=()=>{try{let d=JSON.parse(rd.result); if(!d.products||!d.rows)throw new Error('Fichier non valide'); d.caRows=d.caRows||[]; data=d; save(); render(); alert('Import terminé');}catch(err){alert('Import impossible : '+err.message)}}; rd.readAsText(f)}; input.click();},
+  resetAll(){if(confirm('Réinitialiser toutes les données ?')){data=defaultData();save();render();}},
+  exportExcel(){download('export_gestion_fruits_legumes.xls',buildExcelXml(),'application/vnd.ms-excel')}
+};
+window.appDelRow=i=>{if(confirm('Supprimer cette ligne ?')){data.rows.splice(i,1); if(uiState.lastInput&&uiState.lastInput.type==='rows'){uiState.lastInput.index=Math.max(0,Math.min(uiState.lastInput.index,data.rows.length-1));saveUI();} render();}};
+window.appDelCA=i=>{if(confirm('Supprimer cette ligne CA ?')){data.caRows.splice(i,1); if(uiState.lastInput&&uiState.lastInput.type==='caRows'){uiState.lastInput.index=Math.max(0,Math.min(uiState.lastInput.index,data.caRows.length-1));saveUI();} render();}};
+window.appDelExpense=i=>{data.expenses.splice(i,1); if(uiState.lastInput&&uiState.lastInput.type==='expenses'){uiState.lastInput.index=Math.max(0,Math.min(uiState.lastInput.index,data.expenses.length-1));saveUI();} render();};
+window.appDelProduct=i=>{data.products.splice(i,1);render();};
+window.appDelSupplier=i=>{data.suppliers.splice(i,1);render();};
+window.appDelExpenseBase=i=>{data.expensesBase.splice(i,1);render();};
+function download(name,content,type){let blob=new Blob([content],{type}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
+function buildExcelXml(){let y=toNum(data.selectedYear); function sheet(name,headers,rows){let xml=`<Worksheet ss:Name="${escXml(name)}"><Table>`; xml+=`<Row>`+headers.map(h=>`<Cell><Data ss:Type="String">${escXml(h)}</Data></Cell>`).join('')+`</Row>`; rows.forEach(r=>{xml+=`<Row>`+r.map(c=>`<Cell><Data ss:Type="${typeof c==='number'?'Number':'String'}">${escXml(c)}</Data></Cell>`).join('')+`</Row>`}); return xml+`</Table></Worksheet>`}
+let saisie=data.rows.map(r=>[dateFR(r.date),productById(r.productId)?.name||'',data.suppliers.find(s=>s.id===r.supplierId)?.name||'',r.unit,toNum(r.purchaseDepot),toNum(r.purchaseM1),toNum(r.purchaseM2),toNum(r.price),toNum(r.destockM1),toNum(r.destockM2),rowPurchaseValue(r),rowLossValue(r)]);
+let ca=(data.caRows||[]).map(r=>[dateFR(r.date),toNum(r.caM1),toNum(r.caM2),toNum(r.caM1)+toNum(r.caM2),r.note||'']);
+let frais=data.expenses.map(r=>[dateFR(r.date),r.type,r.name,r.shop,toNum(r.amount)]);
+let stock=stockByProductUntil(`${y}-12-31`).map(s=>[s.product.name,s.product.unit,s.purchaseDepotQty,s.purchaseDepotValue,s.avg,s.destockM1,s.destockM2,s.stockQty,s.stockValue]);
+let result=[]; for(let m=1;m<=12;m++){let r=resultObj(rowsByMonth(y,m),expensesByMonth(y,m),caRowsByMonth(y,m)); result.push([monthName(m),r.ca,r.purchases,r.frais.total,r.totalExpenses,r.loss,r.result,r.resultAfterLoss]);}
+return `<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">`+
+ sheet('Saisie marchandises',['Date','Produit','Fournisseur','Unité','Achat Dépôt','Achat Mag1','Achat Mag2','Prix','Déstock M1','Déstock M2','Total achat','Pertes info'],saisie)+
+ sheet('CA',['Date','CA Mag1','CA Mag2','Total CA','Note'],ca)+
+ sheet('Frais',['Date','Type','Dénomination','Magasin','Montant'],frais)+
+ sheet('Stock dépôt',['Produit','Unité','Achat dépôt','Valeur achat dépôt','Prix moyen','Déstock M1','Déstock M2','Stock dépôt','Valeur stock'],stock)+
+ sheet('Résultat mois',['Mois','CA','Achats','Frais','Dépenses globales','Pertes info','Résultat simple','Résultat après pertes'],result)+`</Workbook>`}
+function escXml(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+render();
+})();
+</script>
+</body>
+</html>
